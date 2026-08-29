@@ -10,6 +10,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,7 +29,7 @@ fun TelaGerenciarQuestoes(
     onCriarNovaQuestao: () -> Unit,
     onGerenciarDisciplinas: () -> Unit
 ) {
-    val questoes = remember { RepositorioQuestoes.todas() }
+    val questoes = remember { mutableStateListOf<Questao>().apply { addAll(RepositorioQuestoes.todas()) } }
 
     Column(
         modifier = Modifier
@@ -75,7 +77,13 @@ fun TelaGerenciarQuestoes(
                     modifier = Modifier.fillMaxSize()
                 ) {
                     items(questoes) { questao ->
-                        ItemQuestaoSimples(questao = questao)
+                        ItemQuestaoSimples(
+                            questao = questao,
+                            onExcluir = {
+                                RepositorioQuestoes.remover(questao.id)
+                                questoes.remove(questao)
+                            }
+                        )
                     }
                 }
             }
@@ -95,7 +103,7 @@ fun TelaGerenciarQuestoes(
 }
 
 @Composable
-fun ItemQuestaoSimples(questao: Questao) {
+fun ItemQuestaoSimples(questao: Questao, onExcluir: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -126,5 +134,22 @@ fun ItemQuestaoSimples(questao: Questao) {
         }
         Spacer(modifier = Modifier.height(6.dp))
         Text(text = questao.pergunta, color = Color.White, fontSize = 14.sp)
+        Spacer(modifier = Modifier.height(10.dp))
+
+        Button(
+            onClick = onExcluir,
+            modifier = Modifier.fillMaxWidth().height(40.dp),
+            shape = RoundedCornerShape(8.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFF3A1010)
+            )
+        ) {
+            Text(
+                "EXCLUIR QUESTÃO",
+                color = Color(0xFFFF5252),
+                fontWeight = FontWeight.Bold,
+                fontSize = 12.sp
+            )
+        }
     }
 }

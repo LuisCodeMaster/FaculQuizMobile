@@ -41,6 +41,12 @@ object RepositorioQuestoes {
         adicionarDisciplina(questao.disciplina)
     }
 
+    fun remover(id: Int) {
+        BancoQuestoes.questoes.removeAll {
+            it.id == id
+        }
+    }
+
     fun buscar(id: Int): Questao? {
         return BancoQuestoes.questoes.find {
             it.id == id
