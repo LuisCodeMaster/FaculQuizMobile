@@ -1,8 +1,11 @@
 package com.luis.faculquiz
+import com.luis.faculquiz.model.Questao
+import com.luis.faculquiz.model.Dificuldade
 
 import com.luis.faculquiz.ui.TelaGerenciarQuestoes
 import com.luis.faculquiz.ui.TelaCriarQuestao
 import com.luis.faculquiz.ui.TelaGerenciarDisciplinas
+import com.luis.faculquiz.data.RepositorioQuestoes
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -63,12 +66,6 @@ private val Roxo = Color(0xFFB388FF)
 // MODELOS
 // ============================================================
 
-data class Questao(
-    val pergunta: String,
-    val alternativas: List<String>,
-    val correta: Int,
-    val dificuldade: String
-)
 
 data class Disciplina(
     val nome: String,
@@ -113,68 +110,6 @@ private val disciplinas = listOf(
     )
 )
 
-private val questoes = listOf(
-
-    Questao(
-        pergunta = "Qual é a capital do Brasil?",
-        alternativas = listOf(
-            "São Paulo",
-            "Rio de Janeiro",
-            "Brasília",
-            "Belo Horizonte"
-        ),
-        correta = 2,
-        dificuldade = "Fácil"
-    ),
-
-    Questao(
-        pergunta = "Quanto é 2 + 2?",
-        alternativas = listOf(
-            "3",
-            "4",
-            "5",
-            "6"
-        ),
-        correta = 1,
-        dificuldade = "Fácil"
-    ),
-
-    Questao(
-        pergunta = "Qual planeta é conhecido como Planeta Vermelho?",
-        alternativas = listOf(
-            "Vênus",
-            "Júpiter",
-            "Marte",
-            "Saturno"
-        ),
-        correta = 2,
-        dificuldade = "Fácil"
-    ),
-
-    Questao(
-        pergunta = "Qual linguagem é usada neste projeto?",
-        alternativas = listOf(
-            "Kotlin",
-            "Python",
-            "C",
-            "JavaScript"
-        ),
-        correta = 0,
-        dificuldade = "Médio"
-    ),
-
-    Questao(
-        pergunta = "Quantos lados tem um triângulo?",
-        alternativas = listOf(
-            "2",
-            "3",
-            "4",
-            "5"
-        ),
-        correta = 1,
-        dificuldade = "Fácil"
-    )
-)
 
 
 // ============================================================
@@ -183,14 +118,13 @@ private val questoes = listOf(
 
 fun xpDoAcerto(
     combo: Int,
-    dificuldade: String
+    dificuldade: Dificuldade
 ): Int {
 
     val base = when (dificuldade) {
 
-        "Médio" -> 20
-        "Difícil" -> 35
-        "Insano" -> 50
+        Dificuldade.MEDIO -> 20
+        Dificuldade.DIFICIL -> 35
 
         else -> 10
     }
@@ -241,6 +175,10 @@ fun App() {
 
     var disciplinaSelecionada by remember {
         mutableStateOf<Disciplina?>(null)
+    }
+
+    val questoesDaDisciplina = remember(disciplinaSelecionada) {
+        disciplinaSelecionada?.let { RepositorioQuestoes.porDisciplina(it.nome) } ?: emptyList()
     }
 
     var xp by remember {
@@ -334,11 +272,11 @@ fun App() {
 
                     TelaQuiz(
 
-                        questao = questoes[questaoAtual],
+                        questao = questoesDaDisciplina[questaoAtual],
 
                         numero = questaoAtual + 1,
 
-                        total = questoes.size,
+                        total = questoesDaDisciplina.size,
 
                         combo = combo,
 
@@ -347,7 +285,7 @@ fun App() {
                         responder = { alternativa ->
 
                             val correta =
-                                alternativa == questoes[questaoAtual].correta
+                                alternativa == questoesDaDisciplina[questaoAtual].correta
 
                             if (correta) {
 
@@ -361,7 +299,7 @@ fun App() {
 
                                 xp += xpDoAcerto(
                                     combo,
-                                    questoes[questaoAtual].dificuldade
+                                    questoesDaDisciplina[questaoAtual].dificuldade
                                 )
 
                             } else {
@@ -372,7 +310,7 @@ fun App() {
 
                         proxima = {
 
-                            if (questaoAtual < questoes.lastIndex) {
+                            if (questaoAtual < questoesDaDisciplina.lastIndex) {
 
                                 questaoAtual++
 
@@ -390,7 +328,7 @@ fun App() {
 
                         acertos = acertos,
 
-                        total = questoes.size,
+                        total = questoesDaDisciplina.size,
 
                         xp = xp,
 
@@ -1016,11 +954,10 @@ fun TelaQuiz(
             // DIFICULDADE
 
             Text(
-                text = "DIFICULDADE • ${questao.dificuldade.uppercase()}",
+                text = "DIFICULDADE • ${questao.dificuldade.name.uppercase()}",
                 color = when (questao.dificuldade) {
-                    "Médio" -> Amarelo
-                    "Difícil" -> Vermelho
-                    "Insano" -> Roxo
+                    Dificuldade.MEDIO -> Amarelo
+                    Dificuldade.DIFICIL -> Vermelho
                     else -> Verde
                 },
                 fontWeight = FontWeight.Bold,
