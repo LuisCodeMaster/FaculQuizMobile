@@ -270,56 +270,100 @@ fun App() {
 
                 "quiz" -> {
 
-                    TelaQuiz(
+                    if (questoesDaDisciplina.isEmpty()) {
 
-                        questao = questoesDaDisciplina[questaoAtual],
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(24.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
 
-                        numero = questaoAtual + 1,
+                            Text(
+                                text = "Nenhuma questão cadastrada",
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold,
+                                style = MaterialTheme.typography.titleLarge,
+                                textAlign = TextAlign.Center
+                            )
 
-                        total = questoesDaDisciplina.size,
+                            Spacer(
+                                modifier = Modifier.height(12.dp)
+                            )
 
-                        combo = combo,
+                            Text(
+                                text = "Esta disciplina ainda não possui questões.",
+                                color = Color.LightGray,
+                                textAlign = TextAlign.Center
+                            )
 
-                        xp = xp,
+                            Spacer(
+                                modifier = Modifier.height(24.dp)
+                            )
 
-                        responder = { alternativa ->
-
-                            val correta =
-                                alternativa == questoesDaDisciplina[questaoAtual].correta
-
-                            if (correta) {
-
-                                combo++
-
-                                acertos++
-
-                                if (combo > maiorCombo) {
-                                    maiorCombo = combo
+                            Button(
+                                onClick = {
+                                    tela = "home"
                                 }
-
-                                xp += xpDoAcerto(
-                                    combo,
-                                    questoesDaDisciplina[questaoAtual].dificuldade
-                                )
-
-                            } else {
-
-                                combo = 0
-                            }
-                        },
-
-                        proxima = {
-
-                            if (questaoAtual < questoesDaDisciplina.lastIndex) {
-
-                                questaoAtual++
-
-                            } else {
-
-                                tela = "resultado"
+                            ) {
+                                Text("Voltar")
                             }
                         }
-                    )
+
+                    } else {
+
+                        TelaQuiz(
+
+                            questao = questoesDaDisciplina[questaoAtual],
+
+                            numero = questaoAtual + 1,
+
+                            total = questoesDaDisciplina.size,
+
+                            combo = combo,
+
+                            xp = xp,
+
+                            responder = { alternativa ->
+
+                                val correta =
+                                    alternativa == questoesDaDisciplina[questaoAtual].correta
+
+                                if (correta) {
+
+                                    combo++
+
+                                    acertos++
+
+                                    if (combo > maiorCombo) {
+                                        maiorCombo = combo
+                                    }
+
+                                    xp += xpDoAcerto(
+                                        combo,
+                                        questoesDaDisciplina[questaoAtual].dificuldade
+                                    )
+
+                                } else {
+
+                                    combo = 0
+                                }
+                            },
+
+                            proxima = {
+
+                                if (questaoAtual < questoesDaDisciplina.lastIndex) {
+
+                                    questaoAtual++
+
+                                } else {
+
+                                    tela = "resultado"
+                                }
+                            }
+                        )
+                    }
                 }
 
                 "resultado" -> {
