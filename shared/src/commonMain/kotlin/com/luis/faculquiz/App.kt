@@ -721,6 +721,22 @@ fun TelaDisciplinas(
     selecionar: (Disciplina) -> Unit,
     voltar: () -> Unit
 ) {
+    // Carrega a lista dinâmica do gerenciador de disciplinas em tempo real
+    val listaDinamica = androidx.compose.runtime.remember { com.luis.faculquiz.data.RepositorioQuestoes.disciplinas() }
+    
+    // Converte os nomes em texto para os objetos do tipo Disciplina que seu app espera
+    val disciplinasExibir = androidx.compose.runtime.remember(listaDinamica) {
+        listaDinamica.map { nomeItem ->
+            // Se for uma das padrões, mantém o ícone legal original
+            val iconePadrao = when (nomeItem) {
+                "Cálculo 1" -> "📐"
+                "Algoritmos" -> "💻"
+                "Álgebra Linear" -> "⚛️"
+                else -> "📚"
+            }
+            Disciplina(nome = nomeItem, icone = iconePadrao, nivel = 1, progresso = 0)
+        }
+    }
 
     Column(
 
@@ -752,7 +768,7 @@ fun TelaDisciplinas(
 
         LazyColumn {
 
-            items(disciplinas) { disciplina ->
+            items(disciplinasExibir) { disciplina ->
 
                 CardDisciplina(
                     disciplina = disciplina,
