@@ -47,6 +47,13 @@ object RepositorioQuestoes {
         }
     }
 
+    fun atualizar(questao: Questao) {
+        val indice = BancoQuestoes.questoes.indexOfFirst { it.id == questao.id }
+        if (indice >= 0) {
+            BancoQuestoes.questoes[indice] = questao
+        }
+    }
+
     fun buscar(id: Int): Questao? {
         return BancoQuestoes.questoes.find {
             it.id == id

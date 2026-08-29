@@ -27,21 +27,22 @@ import com.luis.faculquiz.model.Questao
 @Composable
 fun TelaCriarQuestao(
     onVoltar: () -> Unit,
-    onSalvo: () -> Unit
+    onSalvo: () -> Unit,
+    questaoParaEditar: Questao? = null,
 ) {
     val listaDisciplinasDisponiveis = RepositorioQuestoes.disciplinas()
-    var indiceDisciplinaSelecionada by remember { mutableStateOf(0) }
+    var indiceDisciplinaSelecionada by remember { mutableStateOf(questaoParaEditar?.let { listaDisciplinasDisponiveis.indexOf(it.disciplina).takeIf { indice -> indice >= 0 } } ?: 0) }
     val disciplina = listaDisciplinasDisponiveis.getOrNull(indiceDisciplinaSelecionada) ?: "Geral"
     
-    var assunto by remember { mutableStateOf("") }
-    var pergunta by remember { mutableStateOf("") }
-    var altA by remember { mutableStateOf("") }
-    var altB by remember { mutableStateOf("") }
-    var altC by remember { mutableStateOf("") }
-    var altD by remember { mutableStateOf("") }
-    var respostaCorretaIndice by remember { mutableStateOf(0) }
-    var dificuldade by remember { mutableStateOf(Dificuldade.FACIL) }
-    var explicacao by remember { mutableStateOf("") }
+    var assunto by remember { mutableStateOf(questaoParaEditar?.assunto ?: "") }
+    var pergunta by remember { mutableStateOf(questaoParaEditar?.pergunta ?: "") }
+    var altA by remember { mutableStateOf(questaoParaEditar?.alternativas?.getOrNull(0) ?: "") }
+    var altB by remember { mutableStateOf(questaoParaEditar?.alternativas?.getOrNull(1) ?: "") }
+    var altC by remember { mutableStateOf(questaoParaEditar?.alternativas?.getOrNull(2) ?: "") }
+    var altD by remember { mutableStateOf(questaoParaEditar?.alternativas?.getOrNull(3) ?: "") }
+    var respostaCorretaIndice by remember { mutableStateOf(questaoParaEditar?.correta ?: 0) }
+    var dificuldade by remember { mutableStateOf(questaoParaEditar?.dificuldade ?: Dificuldade.FACIL) }
+    var explicacao by remember { mutableStateOf(questaoParaEditar?.explicacao ?: "") }
 
     val scrollState = rememberScrollState()
 
@@ -182,8 +183,8 @@ fun TelaCriarQuestao(
         Button(
             onClick = {
                 if (pergunta.isNotBlank() && altA.isNotBlank() && altB.isNotBlank()) {
-                    val novaQuestao = Questao(
-                        id = RepositorioQuestoes.todas().size + 1,
+                    val questao = Questao(
+                        id = questaoParaEditar?.id ?: (RepositorioQuestoes.todas().maxOfOrNull { it.id } ?: 0) + 1,
                         disciplina = disciplina,
                         assunto = assunto.ifBlank { "Geral" },
                         pergunta = pergunta,
@@ -192,7 +193,13 @@ fun TelaCriarQuestao(
                         explicacao = explicacao,
                         dificuldade = dificuldade
                     )
-                    RepositorioQuestoes.adicionar(novaQuestao)
+
+                    if (questaoParaEditar == null) {
+                        RepositorioQuestoes.adicionar(questao)
+                    } else {
+                        RepositorioQuestoes.atualizar(questao)
+                    }
+                    onSalvo()
                     onSalvo()
                 }
             },
