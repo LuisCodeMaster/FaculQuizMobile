@@ -10,8 +10,23 @@ build/
 # Local configuration
 local.properties
 
-# Kotlin
+# Kotlin / Multiplatform
 .kotlin/
+kotlin-js-store/
+
+# Binários e Pacotes (Proteção de Release)
+*.apk
+*.aab
+*.exe
+*.jar
+*.deb
+*.rpm
+*.dmg
+*.zip
+*.tar.gz
+
+# Compose Desktop Packaging
+package/
 
 # OS
 .DS_Store
