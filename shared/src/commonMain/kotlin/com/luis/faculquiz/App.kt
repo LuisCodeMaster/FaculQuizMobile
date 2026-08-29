@@ -1,5 +1,9 @@
 package com.luis.faculquiz
 
+import com.luis.faculquiz.ui.TelaGerenciarQuestoes
+import com.luis.faculquiz.ui.TelaCriarQuestao
+import com.luis.faculquiz.ui.TelaGerenciarDisciplinas
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -276,9 +280,31 @@ fun App() {
 
                         combo = combo,
 
+                        irGerenciar = { tela = "gerenciar_questoes" },
                         irDisciplinas = {
                             tela = "disciplinas"
                         }
+                    )
+                }
+
+                "gerenciar_questoes" -> {
+                    TelaGerenciarQuestoes(
+                        onVoltar = { tela = "home" },
+                        onCriarNovaQuestao = { tela = "criar_questao" },
+                        onGerenciarDisciplinas = { tela = "gerenciar_disciplinas" }
+                    )
+                }
+
+                "criar_questao" -> {
+                    TelaCriarQuestao(
+                        onVoltar = { tela = "gerenciar_questoes" },
+                        onSalvo = { tela = "gerenciar_questoes" }
+                    )
+                }
+
+                "gerenciar_disciplinas" -> {
+                    TelaGerenciarDisciplinas(
+                        onVoltar = { tela = "gerenciar_questoes" }
                     )
                 }
 
@@ -399,7 +425,8 @@ fun App() {
 fun TelaHome(
     xp: Int,
     combo: Int,
-    irDisciplinas: () -> Unit
+    irDisciplinas: () -> Unit,
+    irGerenciar: () -> Unit
 ) {
 
     val nivel = (xp / 100) + 1
@@ -608,6 +635,15 @@ fun TelaHome(
             BotaoSecundario(
                 texto = "📚  Disciplinas",
                 onClick = irDisciplinas
+            )
+
+            Spacer(
+                modifier = Modifier.height(10.dp)
+            )
+
+            BotaoSecundario(
+                texto = "🛠️  Gerenciar Questões",
+                onClick = irGerenciar
             )
 
             Spacer(
